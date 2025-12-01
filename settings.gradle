@@ -1,0 +1,4 @@
+rootProject.name = 'jdiskarbitration'
+
+include 'lib'
+include 'example'

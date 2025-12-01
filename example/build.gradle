@@ -1,0 +1,14 @@
+plugins {
+    id 'application'
+}
+
+description = 'Example application demonstrating jdiskarbitration usage'
+
+application {
+    mainClass.set('com.selesse.jdiskarbitration.example.App')
+}
+
+dependencies {
+    implementation project(':lib')
+    runtimeOnly 'ch.qos.logback:logback-classic:1.5.13'
+}
