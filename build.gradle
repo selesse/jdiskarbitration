@@ -3,14 +3,11 @@ plugins {
     id("com.vanniktech.maven.publish") version "0.35.0"
 }
 
-group = 'com.selesse'
-version = '0.1.0'
-
 subprojects {
     apply plugin: 'java'
 
     group = 'com.selesse'
-    version = '0.1.0'
+    version = '0.2.0'
 
     repositories {
         mavenCentral()
