@@ -30,8 +30,8 @@ DiskEventManager manager = DiskEventManager.builder()
     .listener(new DiskEventAdapter() {
         @Override
         public void onDiskMounted(DiskInfo diskInfo) {
-            System.out.println("Disk mounted: " + diskInfo.volumeInfo().volumeName() +
-                             " at " + diskInfo.volumeInfo().volumePath());
+            System.out.println("Disk mounted: " + diskInfo.volumeInfo().name() +
+                             " at " + diskInfo.volumeInfo().path());
         }
 
         @Override
@@ -99,18 +99,24 @@ The `DiskInfo` record and its nested types provide disk metadata.
 - `bsdName()` - BSD device name (e.g., "disk2s1")
 
 ### VolumeInfo Record (`volumeInfo()`)
-- `volumeName()` - Volume name (e.g., "USB Drive")
-- `volumePath()` - Mount path (e.g., "/Volumes/USB Drive")
-- `volumeKind()` - Filesystem type (e.g., "exfat", "msdos", "apfs")
-- `volumeUUID()` - Volume UUID
+- `path()` - Mount path (e.g., "/Volumes/USB Drive")
+- `name()` - Volume name (e.g., "USB Drive")
+- `kind()` - Filesystem type (e.g., "exfat", "msdos", "apfs")
+- `uuid()` - Volume UUID
+- `mountable()` - Whether volume is mountable (Boolean, may be null)
+- `network()` - Whether volume is on network (Boolean, may be null)
+- `type()` - Volume type
 
 ### DeviceInfo Record (`deviceInfo()`)
-- `deviceProtocol()` - Protocol (e.g., "USB", "SATA", "Virtual Interface")
-- `deviceModel()` - Device model
-- `deviceVendor()` - Device vendor/manufacturer
-- `deviceRevision()` - Firmware revision
-- `deviceUnit()` - Device unit number
+- `protocol()` - Protocol (e.g., "USB", "SATA", "Virtual Interface")
+- `model()` - Device model
+- `vendor()` - Device vendor/manufacturer
+- `revision()` - Firmware revision
+- `unit()` - Device unit number
 - `isInternal()` - Whether device is internal
+- `guid()` - Device GUID
+- `path()` - Device path
+- `tdmLocked()` - Whether Target Disk Mode is locked (Boolean, may be null)
 
 ### MediaInfo Record (`mediaInfo()`)
 - `mediaSize()` - Size in bytes
@@ -123,15 +129,25 @@ The `DiskInfo` record and its nested types provide disk metadata.
 - `mediaType()` - Media type
 - `mediaContent()` - Media content identifier
 - `mediaUUID()` - Media UUID
+- `bsdMajor()` - BSD major number
+- `bsdMinor()` - BSD minor number
+- `bsdName()` - BSD name
+- `bsdUnit()` - BSD unit number
+- `icon()` - Icon name/path
+- `kind()` - Media kind
+- `name()` - Media name
+- `path()` - Media path
+- `encrypted()` - Whether media is encrypted (Boolean, may be null)
+- `encryptionDetail()` - Encryption details (e.g., "AES-256")
 
 ### BusInfo Record (`busInfo()`)
-- `busName()` - Bus name (e.g., "USB")
-- `busPath()` - Bus path
+- `name()` - Bus name (e.g., "USB")
+- `path()` - Bus path
 
-### Convenience Methods
+### Convenience Methods on DiskInfo
 - `isExternal()` - Returns `!deviceInfo().isInternal()`
 - `isUSB()` - Returns true if device protocol is "USB"
-- `formattedSize()` - Human-readable size (e.g., "16.37 GB")
+- `getFormattedSize()` - Human-readable size (e.g., "16.37 GB")
 
 ## Examples
 
@@ -146,9 +162,9 @@ DiskEventManager manager = DiskEventManager.builder()
             @Override
             public void onDiskMounted(DiskInfo info) {
                 System.out.printf("USB drive mounted: %s (%s) at %s%n",
-                    info.volumeInfo().volumeName(),
+                    info.volumeInfo().name(),
                     info.getFormattedSize(),
-                    info.volumeInfo().volumePath());
+                    info.volumeInfo().path());
             }
         })
         .build();
@@ -173,13 +189,13 @@ DiskEventManager manager = DiskEventManager.builder()
 DiskEventManager manager = DiskEventManager.builder()
         .filter(info -> {
             // Only exFAT or FAT32 filesystems
-            String kind = info.volumeInfo().volumeKind();
+            String kind = info.volumeInfo().kind();
             return "exfat".equalsIgnoreCase(kind) ||
                    "msdos".equalsIgnoreCase(kind);
         })
         .filter(info -> {
             // Not Time Machine backups
-            String name = info.volumeInfo().volumeName();
+            String name = info.volumeInfo().name();
             return name == null || !name.contains("Time Machine");
         })
         .listener(myListener)
