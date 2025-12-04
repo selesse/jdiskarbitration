@@ -112,7 +112,7 @@ class DiskInfoMapper {
         builder.mediaName(cfReader.getString(dict, keys.kDADiskDescriptionMediaNameKey));
         builder.mediaPath(cfReader.getString(dict, keys.kDADiskDescriptionMediaPathKey));
         builder.mediaEncrypted(cfReader.getBooleanNullable(dict, keys.kDADiskDescriptionMediaEncryptedKey));
-        builder.mediaEncryptionDetail(cfReader.getString(dict, keys.kDADiskDescriptionMediaEncryptionDetailKey));
+        builder.mediaEncryptionDetail(cfReader.getInteger(dict, keys.kDADiskDescriptionMediaEncryptionDetailKey));
     }
 
     /**

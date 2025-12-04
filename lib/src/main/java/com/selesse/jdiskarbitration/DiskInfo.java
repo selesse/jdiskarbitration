@@ -49,7 +49,7 @@ public record DiskInfo(
         String name,
         String path,
         Boolean encrypted,
-        String encryptionDetail
+        Integer encryptionDetail
     ) {}
     public record BusInfo(String name, String path) {}
 
@@ -102,7 +102,7 @@ public record DiskInfo(
         private String mediaName;
         private String mediaPath;
         private Boolean mediaEncrypted;
-        private String mediaEncryptionDetail;
+        private Integer mediaEncryptionDetail;
         private String busName;
         private String busPath;
 
@@ -142,7 +142,7 @@ public record DiskInfo(
         public Builder mediaName(String mediaName) { this.mediaName = mediaName; return this; }
         public Builder mediaPath(String mediaPath) { this.mediaPath = mediaPath; return this; }
         public Builder mediaEncrypted(Boolean mediaEncrypted) { this.mediaEncrypted = mediaEncrypted; return this; }
-        public Builder mediaEncryptionDetail(String mediaEncryptionDetail) { this.mediaEncryptionDetail = mediaEncryptionDetail; return this; }
+        public Builder mediaEncryptionDetail(Integer mediaEncryptionDetail) { this.mediaEncryptionDetail = mediaEncryptionDetail; return this; }
         public Builder busName(String busName) { this.busName = busName; return this; }
         public Builder busPath(String busPath) { this.busPath = busPath; return this; }
 

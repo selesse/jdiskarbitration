@@ -138,7 +138,7 @@ The `DiskInfo` record and its nested types provide disk metadata.
 - `name()` - Media name
 - `path()` - Media path
 - `encrypted()` - Whether media is encrypted (Boolean, may be null)
-- `encryptionDetail()` - Encryption details (e.g., "AES-256")
+- `encryptionDetail()` - Encryption detail code (Integer, e.g., 256 for AES-256)
 
 ### BusInfo Record (`busInfo()`)
 - `name()` - Bus name (e.g., "USB")

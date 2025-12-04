@@ -204,7 +204,7 @@ class DiskInfoTest {
                 .mediaName("MySSD")
                 .mediaPath("/dev/disk3")
                 .mediaEncrypted(true)
-                .mediaEncryptionDetail("AES-256")
+                .mediaEncryptionDetail(256)
                 .build();
 
         assertNotNull(diskInfo.mediaInfo());
@@ -227,7 +227,7 @@ class DiskInfoTest {
         assertEquals("MySSD", diskInfo.mediaInfo().name());
         assertEquals("/dev/disk3", diskInfo.mediaInfo().path());
         assertTrue(diskInfo.mediaInfo().encrypted());
-        assertEquals("AES-256", diskInfo.mediaInfo().encryptionDetail());
+        assertEquals(256, diskInfo.mediaInfo().encryptionDetail());
     }
 
     @Test
