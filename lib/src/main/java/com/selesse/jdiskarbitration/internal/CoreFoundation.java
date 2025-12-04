@@ -32,6 +32,7 @@ interface CoreFoundation extends Library {
 
     boolean CFNumberGetValue(Pointer number, int theType, Pointer valuePtr);
 
+    int kCFNumberSInt32Type = 3;
     int kCFNumberSInt64Type = 4;
 
     // Using a method to get the pointer to the global constant after the library is loaded
@@ -51,4 +52,12 @@ interface CoreFoundation extends Library {
 
     // UUID functions
     Pointer CFUUIDCreateString(Pointer allocator, Pointer uuid);
+
+    // Type checking functions
+    long CFGetTypeID(Pointer cf);
+    long CFStringGetTypeID();
+    long CFNumberGetTypeID();
+    long CFBooleanGetTypeID();
+    long CFDictionaryGetTypeID();
+    long CFDataGetTypeID();
 }

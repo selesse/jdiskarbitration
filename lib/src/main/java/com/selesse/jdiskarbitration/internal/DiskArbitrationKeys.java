@@ -3,6 +3,7 @@ package com.selesse.jdiskarbitration.internal;
 import com.sun.jna.NativeLibrary;
 import com.sun.jna.Pointer;
 
+// https://developer.apple.com/documentation/diskarbitration/diskarbitration-constants
 class DiskArbitrationKeys {
 
     // Volume information
@@ -10,6 +11,9 @@ class DiskArbitrationKeys {
     public final Pointer kDADiskDescriptionVolumeNameKey;
     public final Pointer kDADiskDescriptionVolumeKindKey;
     public final Pointer kDADiskDescriptionVolumeUUIDKey;
+    public final Pointer kDADiskDescriptionVolumeMountableKey;
+    public final Pointer kDADiskDescriptionVolumeNetworkKey;
+    public final Pointer kDADiskDescriptionVolumeTypeKey;
 
     // Device information
     public final Pointer kDADiskDescriptionDeviceProtocolKey;
@@ -18,6 +22,9 @@ class DiskArbitrationKeys {
     public final Pointer kDADiskDescriptionDeviceVendorKey;
     public final Pointer kDADiskDescriptionDeviceRevisionKey;
     public final Pointer kDADiskDescriptionDeviceUnitKey;
+    public final Pointer kDADiskDescriptionDeviceGUIDKey;
+    public final Pointer kDADiskDescriptionDevicePathKey;
+    public final Pointer kDADiskDescriptionDeviceTDMLockedKey;
 
     // Media information
     public final Pointer kDADiskDescriptionMediaRemovableKey;
@@ -30,6 +37,16 @@ class DiskArbitrationKeys {
     public final Pointer kDADiskDescriptionMediaTypeKey;
     public final Pointer kDADiskDescriptionMediaContentKey;
     public final Pointer kDADiskDescriptionMediaUUIDKey;
+    public final Pointer kDADiskDescriptionMediaBSDMajorKey;
+    public final Pointer kDADiskDescriptionMediaBSDMinorKey;
+    public final Pointer kDADiskDescriptionMediaBSDNameKey;
+    public final Pointer kDADiskDescriptionMediaBSDUnitKey;
+    public final Pointer kDADiskDescriptionMediaIconKey;
+    public final Pointer kDADiskDescriptionMediaKindKey;
+    public final Pointer kDADiskDescriptionMediaNameKey;
+    public final Pointer kDADiskDescriptionMediaPathKey;
+    public final Pointer kDADiskDescriptionMediaEncryptedKey;
+    public final Pointer kDADiskDescriptionMediaEncryptionDetailKey;
 
     // Bus information
     public final Pointer kDADiskDescriptionBusNameKey;
@@ -43,6 +60,9 @@ class DiskArbitrationKeys {
         this.kDADiskDescriptionVolumeNameKey = getSymbol(lib, "kDADiskDescriptionVolumeNameKey");
         this.kDADiskDescriptionVolumeKindKey = getSymbol(lib, "kDADiskDescriptionVolumeKindKey");
         this.kDADiskDescriptionVolumeUUIDKey = getSymbol(lib, "kDADiskDescriptionVolumeUUIDKey");
+        this.kDADiskDescriptionVolumeMountableKey = getSymbol(lib, "kDADiskDescriptionVolumeMountableKey");
+        this.kDADiskDescriptionVolumeNetworkKey = getSymbol(lib, "kDADiskDescriptionVolumeNetworkKey");
+        this.kDADiskDescriptionVolumeTypeKey = getSymbol(lib, "kDADiskDescriptionVolumeTypeKey");
 
         // Device information
         this.kDADiskDescriptionDeviceProtocolKey = getSymbol(lib, "kDADiskDescriptionDeviceProtocolKey");
@@ -51,6 +71,9 @@ class DiskArbitrationKeys {
         this.kDADiskDescriptionDeviceVendorKey = getSymbol(lib, "kDADiskDescriptionDeviceVendorKey");
         this.kDADiskDescriptionDeviceRevisionKey = getSymbol(lib, "kDADiskDescriptionDeviceRevisionKey");
         this.kDADiskDescriptionDeviceUnitKey = getSymbol(lib, "kDADiskDescriptionDeviceUnitKey");
+        this.kDADiskDescriptionDeviceGUIDKey = getSymbol(lib, "kDADiskDescriptionDeviceGUIDKey");
+        this.kDADiskDescriptionDevicePathKey = getSymbol(lib, "kDADiskDescriptionDevicePathKey");
+        this.kDADiskDescriptionDeviceTDMLockedKey = getSymbol(lib, "kDADiskDescriptionDeviceTDMLockedKey");
 
         // Media information
         this.kDADiskDescriptionMediaRemovableKey = getSymbol(lib, "kDADiskDescriptionMediaRemovableKey");
@@ -63,6 +86,16 @@ class DiskArbitrationKeys {
         this.kDADiskDescriptionMediaTypeKey = getSymbol(lib, "kDADiskDescriptionMediaTypeKey");
         this.kDADiskDescriptionMediaContentKey = getSymbol(lib, "kDADiskDescriptionMediaContentKey");
         this.kDADiskDescriptionMediaUUIDKey = getSymbol(lib, "kDADiskDescriptionMediaUUIDKey");
+        this.kDADiskDescriptionMediaBSDMajorKey = getSymbol(lib, "kDADiskDescriptionMediaBSDMajorKey");
+        this.kDADiskDescriptionMediaBSDMinorKey = getSymbol(lib, "kDADiskDescriptionMediaBSDMinorKey");
+        this.kDADiskDescriptionMediaBSDNameKey = getSymbol(lib, "kDADiskDescriptionMediaBSDNameKey");
+        this.kDADiskDescriptionMediaBSDUnitKey = getSymbol(lib, "kDADiskDescriptionMediaBSDUnitKey");
+        this.kDADiskDescriptionMediaIconKey = getSymbol(lib, "kDADiskDescriptionMediaIconKey");
+        this.kDADiskDescriptionMediaKindKey = getSymbol(lib, "kDADiskDescriptionMediaKindKey");
+        this.kDADiskDescriptionMediaNameKey = getSymbol(lib, "kDADiskDescriptionMediaNameKey");
+        this.kDADiskDescriptionMediaPathKey = getSymbol(lib, "kDADiskDescriptionMediaPathKey");
+        this.kDADiskDescriptionMediaEncryptedKey = getSymbol(lib, "kDADiskDescriptionMediaEncryptedKey");
+        this.kDADiskDescriptionMediaEncryptionDetailKey = getSymbol(lib, "kDADiskDescriptionMediaEncryptionDetailKey");
 
         // Bus information
         this.kDADiskDescriptionBusNameKey = getSymbol(lib, "kDADiskDescriptionBusNameKey");
@@ -70,12 +103,17 @@ class DiskArbitrationKeys {
     }
 
     private Pointer getSymbol(NativeLibrary lib, String symbolName) {
-        Pointer symbolAddress = lib.getGlobalVariableAddress(symbolName);
-        if (symbolAddress == null || symbolAddress == Pointer.NULL) {
-            throw new IllegalStateException("Could not find symbol " + symbolName + " in DiskArbitration framework.");
+        try {
+            Pointer symbolAddress = lib.getGlobalVariableAddress(symbolName);
+            if (symbolAddress == null || symbolAddress == Pointer.NULL) {
+                return null;
+            }
+            // Dereference the symbol to get the actual CFStringRef value
+            return symbolAddress.getPointer(0);
+        } catch (Exception e) {
+            // Symbol doesn't exist in this version of macOS
+            return null;
         }
-        // Dereference the symbol to get the actual CFStringRef value
-        return symbolAddress.getPointer(0);
     }
 
     public static final DiskArbitrationKeys INSTANCE = new DiskArbitrationKeys();
