@@ -130,4 +130,124 @@ class DiskInfoTest {
                 .build();
         assertFalse(internal.isExternal());
     }
+
+    @Test
+    void testNewVolumeFields() {
+        DiskInfo diskInfo = new DiskInfo.Builder()
+                .bsdName("disk1s1")
+                .volumePath("/Volumes/Test")
+                .volumeName("Test")
+                .volumeKind("apfs")
+                .volumeUUID("ABC-123")
+                .volumeMountable(true)
+                .volumeNetwork(false)
+                .volumeType("hfs")
+                .build();
+
+        assertNotNull(diskInfo.volumeInfo());
+        assertEquals("/Volumes/Test", diskInfo.volumeInfo().path());
+        assertEquals("Test", diskInfo.volumeInfo().name());
+        assertEquals("apfs", diskInfo.volumeInfo().kind());
+        assertEquals("ABC-123", diskInfo.volumeInfo().uuid());
+        assertTrue(diskInfo.volumeInfo().mountable());
+        assertFalse(diskInfo.volumeInfo().network());
+        assertEquals("hfs", diskInfo.volumeInfo().type());
+    }
+
+    @Test
+    void testNewDeviceFields() {
+        DiskInfo diskInfo = new DiskInfo.Builder()
+                .bsdName("disk2")
+                .deviceProtocol("USB")
+                .deviceModel("MyDrive")
+                .deviceVendor("ACME")
+                .deviceRevision("2.0")
+                .deviceUnit(1L)
+                .isInternal(false)
+                .deviceGuid("GUID-456")
+                .devicePath("/dev/disk2")
+                .deviceTdmLocked(false)
+                .build();
+
+        assertNotNull(diskInfo.deviceInfo());
+        assertEquals("USB", diskInfo.deviceInfo().protocol());
+        assertEquals("MyDrive", diskInfo.deviceInfo().model());
+        assertEquals("ACME", diskInfo.deviceInfo().vendor());
+        assertEquals("2.0", diskInfo.deviceInfo().revision());
+        assertEquals(1L, diskInfo.deviceInfo().unit());
+        assertFalse(diskInfo.deviceInfo().isInternal());
+        assertEquals("GUID-456", diskInfo.deviceInfo().guid());
+        assertEquals("/dev/disk2", diskInfo.deviceInfo().path());
+        assertFalse(diskInfo.deviceInfo().tdmLocked());
+    }
+
+    @Test
+    void testNewMediaFields() {
+        DiskInfo diskInfo = new DiskInfo.Builder()
+                .bsdName("disk3")
+                .isRemovable(true)
+                .mediaSize(1000000000L)
+                .mediaBlockSize(512L)
+                .isWritable(true)
+                .isWholeDisk(false)
+                .isEjectable(true)
+                .isLeaf(true)
+                .mediaType("SSD")
+                .mediaContent("GUID_partition_scheme")
+                .mediaUUID("UUID-789")
+                .mediaBsdMajor(1)
+                .mediaBsdMinor(0)
+                .mediaBsdName("disk3")
+                .mediaBsdUnit(3)
+                .mediaIcon("icon.png")
+                .mediaKind("Physical")
+                .mediaName("MySSD")
+                .mediaPath("/dev/disk3")
+                .mediaEncrypted(true)
+                .mediaEncryptionDetail("AES-256")
+                .build();
+
+        assertNotNull(diskInfo.mediaInfo());
+        assertTrue(diskInfo.mediaInfo().isRemovable());
+        assertEquals(1000000000L, diskInfo.mediaInfo().mediaSize());
+        assertEquals(512L, diskInfo.mediaInfo().mediaBlockSize());
+        assertTrue(diskInfo.mediaInfo().isWritable());
+        assertFalse(diskInfo.mediaInfo().isWholeDisk());
+        assertTrue(diskInfo.mediaInfo().isEjectable());
+        assertTrue(diskInfo.mediaInfo().isLeaf());
+        assertEquals("SSD", diskInfo.mediaInfo().mediaType());
+        assertEquals("GUID_partition_scheme", diskInfo.mediaInfo().mediaContent());
+        assertEquals("UUID-789", diskInfo.mediaInfo().mediaUUID());
+        assertEquals(1, diskInfo.mediaInfo().bsdMajor());
+        assertEquals(0, diskInfo.mediaInfo().bsdMinor());
+        assertEquals("disk3", diskInfo.mediaInfo().bsdName());
+        assertEquals(3, diskInfo.mediaInfo().bsdUnit());
+        assertEquals("icon.png", diskInfo.mediaInfo().icon());
+        assertEquals("Physical", diskInfo.mediaInfo().kind());
+        assertEquals("MySSD", diskInfo.mediaInfo().name());
+        assertEquals("/dev/disk3", diskInfo.mediaInfo().path());
+        assertTrue(diskInfo.mediaInfo().encrypted());
+        assertEquals("AES-256", diskInfo.mediaInfo().encryptionDetail());
+    }
+
+    @Test
+    void testNullableFieldsCanBeNull() {
+        DiskInfo diskInfo = new DiskInfo.Builder()
+                .bsdName("disk4")
+                .volumeMountable(null)
+                .volumeNetwork(null)
+                .deviceTdmLocked(null)
+                .mediaEncrypted(null)
+                .build();
+
+        assertNotNull(diskInfo.volumeInfo());
+        assertNull(diskInfo.volumeInfo().mountable());
+        assertNull(diskInfo.volumeInfo().network());
+
+        assertNotNull(diskInfo.deviceInfo());
+        assertNull(diskInfo.deviceInfo().tdmLocked());
+
+        assertNotNull(diskInfo.mediaInfo());
+        assertNull(diskInfo.mediaInfo().encrypted());
+    }
 }
