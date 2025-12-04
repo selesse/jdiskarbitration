@@ -47,11 +47,13 @@ interface CoreFoundation extends Library {
     }
 
     Pointer CFURLCopyFileSystemPath(Pointer url, int pathStyle);
+    long CFURLGetTypeID();
 
     int kCFURLPOSIXPathStyle = 0;
 
     // UUID functions
     Pointer CFUUIDCreateString(Pointer allocator, Pointer uuid);
+    long CFUUIDGetTypeID();
 
     // Type checking functions
     long CFGetTypeID(Pointer cf);

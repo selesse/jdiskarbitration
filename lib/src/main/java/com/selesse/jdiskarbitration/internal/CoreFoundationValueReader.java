@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
+import java.util.function.Function;
 
 /**
  * Utility class for reading and converting values from CoreFoundation dictionaries.
@@ -20,11 +21,7 @@ class CoreFoundationValueReader {
         this.cf = cf;
     }
 
-    /**
-     * Reads a string value from a CFDictionary.
-     * Returns null if the key doesn't exist or the value is not a CFString.
-     */
-    String getString(Pointer dict, Pointer key) {
+    private <T> T getValue(Pointer dict, Pointer key, long expectedTypeID, Function<Pointer, T> converter) {
         if (key == null || key == Pointer.NULL) {
             return null;
         }
@@ -33,11 +30,26 @@ class CoreFoundationValueReader {
             if (ref == null || ref == Pointer.NULL) {
                 return null;
             }
-            return convertToString(ref);
+
+            long actualTypeID = cf.CFGetTypeID(ref);
+            if (actualTypeID != expectedTypeID) {
+                LOGGER.debug("Type mismatch: actual={}, expected={}", actualTypeID, expectedTypeID);
+                return null;
+            }
+
+            return converter.apply(ref);
         } catch (Exception e) {
-            LOGGER.debug("Failed to get string value for key", e);
+            LOGGER.debug("Failed to get value for key", e);
             return null;
         }
+    }
+
+    /**
+     * Reads a string value from a CFDictionary.
+     * Returns null if the key doesn't exist or the value is not a CFString.
+     */
+    String getString(Pointer dict, Pointer key) {
+        return getValue(dict, key, cf.CFStringGetTypeID(), this::convertToString);
     }
 
     /**
@@ -45,15 +57,7 @@ class CoreFoundationValueReader {
      * Converts CFUUIDRef to a string representation.
      */
     String getUUID(Pointer dict, Pointer key) {
-        if (key == null || key == Pointer.NULL) {
-            return null;
-        }
-        try {
-            Pointer uuidRef = cf.CFDictionaryGetValue(dict, key);
-            if (uuidRef == null || uuidRef == Pointer.NULL) {
-                return null;
-            }
-            // Convert CFUUIDRef to CFString
+        return getValue(dict, key, cf.CFUUIDGetTypeID(), uuidRef -> {
             Pointer uuidString = cf.CFUUIDCreateString(null, uuidRef);
             if (uuidString == null || uuidString == Pointer.NULL) {
                 return null;
@@ -61,12 +65,9 @@ class CoreFoundationValueReader {
             try {
                 return convertToString(uuidString);
             } finally {
-                cf.CFRelease(uuidString); // Release the created string
+                cf.CFRelease(uuidString);
             }
-        } catch (Exception e) {
-            LOGGER.debug("Failed to get UUID value for key", e);
-            return null;
-        }
+        });
     }
 
     /**
@@ -74,19 +75,8 @@ class CoreFoundationValueReader {
      * Returns false if the key doesn't exist.
      */
     boolean getBoolean(Pointer dict, Pointer key) {
-        if (key == null || key == Pointer.NULL) {
-            return false;
-        }
-        try {
-            Pointer ref = cf.CFDictionaryGetValue(dict, key);
-            if (ref == null || ref == Pointer.NULL) {
-                return false;
-            }
-            return cf.CFBooleanGetValue(ref);
-        } catch (Exception e) {
-            LOGGER.debug("Failed to get boolean value for key", e);
-            return false;
-        }
+        Boolean value = getValue(dict, key, cf.CFBooleanGetTypeID(), cf::CFBooleanGetValue);
+        return value != null && value;
     }
 
     /**
@@ -94,19 +84,7 @@ class CoreFoundationValueReader {
      * Returns null if the key doesn't exist, allowing distinction between absent and false.
      */
     Boolean getBooleanNullable(Pointer dict, Pointer key) {
-        if (key == null || key == Pointer.NULL) {
-            return null;
-        }
-        try {
-            Pointer ref = cf.CFDictionaryGetValue(dict, key);
-            if (ref == null || ref == Pointer.NULL) {
-                return null;
-            }
-            return cf.CFBooleanGetValue(ref);
-        } catch (Exception e) {
-            LOGGER.debug("Failed to get boolean value for key", e);
-            return null;
-        }
+        return getValue(dict, key, cf.CFBooleanGetTypeID(), cf::CFBooleanGetValue);
     }
 
     /**
@@ -114,24 +92,11 @@ class CoreFoundationValueReader {
      * Returns null if the key doesn't exist or conversion fails.
      */
     Long getLong(Pointer dict, Pointer key) {
-        if (key == null || key == Pointer.NULL) {
-            return null;
-        }
-        try {
-            Pointer ref = cf.CFDictionaryGetValue(dict, key);
-            if (ref == null || ref == Pointer.NULL) {
-                return null;
-            }
+        return getValue(dict, key, cf.CFNumberGetTypeID(), ref -> {
             Memory mem = new Memory(8);
             boolean success = cf.CFNumberGetValue(ref, CoreFoundation.kCFNumberSInt64Type, mem);
-            if (!success) {
-                return null;
-            }
-            return mem.getLong(0);
-        } catch (Exception e) {
-            LOGGER.debug("Failed to get number value for key", e);
-            return null;
-        }
+            return success ? mem.getLong(0) : null;
+        });
     }
 
     /**
@@ -139,24 +104,11 @@ class CoreFoundationValueReader {
      * Returns null if the key doesn't exist or conversion fails.
      */
     Integer getInteger(Pointer dict, Pointer key) {
-        if (key == null || key == Pointer.NULL) {
-            return null;
-        }
-        try {
-            Pointer ref = cf.CFDictionaryGetValue(dict, key);
-            if (ref == null || ref == Pointer.NULL) {
-                return null;
-            }
+        return getValue(dict, key, cf.CFNumberGetTypeID(), ref -> {
             Memory mem = new Memory(4);
             boolean success = cf.CFNumberGetValue(ref, CoreFoundation.kCFNumberSInt32Type, mem);
-            if (!success) {
-                return null;
-            }
-            return mem.getInt(0);
-        } catch (Exception e) {
-            LOGGER.debug("Failed to get integer value for key", e);
-            return null;
-        }
+            return success ? mem.getInt(0) : null;
+        });
     }
 
     /**
@@ -164,14 +116,7 @@ class CoreFoundationValueReader {
      * The value is a CFURL which needs special handling.
      */
     String getVolumePath(Pointer dict, Pointer key) {
-        if (key == null || key == Pointer.NULL) {
-            return null;
-        }
-        try {
-            Pointer volumePathRef = cf.CFDictionaryGetValue(dict, key);
-            if (volumePathRef == null || volumePathRef == Pointer.NULL) {
-                return null;
-            }
+        return getValue(dict, key, cf.CFURLGetTypeID(), volumePathRef -> {
             Pointer cfStringPath = cf.CFURLCopyFileSystemPath(volumePathRef, CoreFoundation.kCFURLPOSIXPathStyle);
             if (cfStringPath == null || cfStringPath == Pointer.NULL) {
                 return null;
@@ -181,10 +126,7 @@ class CoreFoundationValueReader {
             } finally {
                 cf.CFRelease(cfStringPath);
             }
-        } catch (Exception e) {
-            LOGGER.debug("Failed to get volume path for key", e);
-            return null;
-        }
+        });
     }
 
     /**
