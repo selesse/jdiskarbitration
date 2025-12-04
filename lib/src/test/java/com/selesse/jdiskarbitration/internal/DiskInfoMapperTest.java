@@ -82,6 +82,7 @@ class DiskInfoMapperTest {
 
         // Mock media properties
         when(cfReader.getInteger(eq(dict), any())).thenReturn(10);
+        when(cfReader.getIconBundleIdentifier(eq(dict), any())).thenReturn("com.apple.finder");
 
         DiskInfo result = mapper.fromDADisk(disk);
 
@@ -136,6 +137,7 @@ class DiskInfoMapperTest {
         when(cfReader.getBoolean(eq(dict), any())).thenReturn(false);
         when(cfReader.getLong(eq(dict), any())).thenReturn(100L);
         when(cfReader.getInteger(eq(dict), any())).thenReturn(5);
+        when(cfReader.getIconBundleIdentifier(eq(dict), any())).thenReturn("com.apple.finder");
 
         DiskInfo result = mapper.fromDADisk(disk);
 
@@ -151,5 +153,6 @@ class DiskInfoMapperTest {
         verify(cfReader, atLeastOnce()).getBoolean(eq(dict), any());
         verify(cfReader, atLeastOnce()).getLong(eq(dict), any());
         verify(cfReader, atLeastOnce()).getInteger(eq(dict), any());
+        verify(cfReader, atLeastOnce()).getIconBundleIdentifier(eq(dict), any());
     }
 }

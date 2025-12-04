@@ -24,6 +24,8 @@ interface CoreFoundation extends Library {
 
     long CFStringGetMaximumSizeForEncoding(long length, int encoding);
 
+    Pointer CFStringCreateWithCString(Pointer allocator, String cStr, int encoding);
+
     int kCFStringEncodingUTF8 = 0x08000100;
 
     void CFRelease(Pointer cf);

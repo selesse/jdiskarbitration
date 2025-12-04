@@ -107,7 +107,7 @@ class DiskInfoMapper {
         builder.mediaBsdMinor(cfReader.getInteger(dict, keys.kDADiskDescriptionMediaBSDMinorKey));
         builder.mediaBsdName(cfReader.getString(dict, keys.kDADiskDescriptionMediaBSDNameKey));
         builder.mediaBsdUnit(cfReader.getInteger(dict, keys.kDADiskDescriptionMediaBSDUnitKey));
-        builder.mediaIcon(cfReader.getString(dict, keys.kDADiskDescriptionMediaIconKey));
+        builder.mediaIcon(cfReader.getIconBundleIdentifier(dict, keys.kDADiskDescriptionMediaIconKey));
         builder.mediaKind(cfReader.getString(dict, keys.kDADiskDescriptionMediaKindKey));
         builder.mediaName(cfReader.getString(dict, keys.kDADiskDescriptionMediaNameKey));
         builder.mediaPath(cfReader.getString(dict, keys.kDADiskDescriptionMediaPathKey));

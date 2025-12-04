@@ -133,7 +133,7 @@ The `DiskInfo` record and its nested types provide disk metadata.
 - `bsdMinor()` - BSD minor number
 - `bsdName()` - BSD name
 - `bsdUnit()` - BSD unit number
-- `icon()` - Icon name/path
+- `icon()` - Icon bundle identifier (e.g., "com.apple.finder")
 - `kind()` - Media kind
 - `name()` - Media name
 - `path()` - Media path

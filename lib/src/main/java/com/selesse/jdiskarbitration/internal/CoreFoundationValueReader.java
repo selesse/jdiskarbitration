@@ -130,6 +130,36 @@ class CoreFoundationValueReader {
     }
 
     /**
+     * Reads an icon dictionary and extracts the bundle identifier.
+     * Icon dictionaries typically contain CFBundleIdentifier and other icon metadata.
+     * Returns the bundle identifier as a string, or null if not found.
+     */
+    String getIconBundleIdentifier(Pointer dict, Pointer key) {
+        return getValue(dict, key, cf.CFDictionaryGetTypeID(), iconDict -> {
+            // Create CFString key for "CFBundleIdentifier"
+            Pointer bundleIdKey = cf.CFStringCreateWithCString(null, "CFBundleIdentifier", CoreFoundation.kCFStringEncodingUTF8);
+            if (bundleIdKey == null || bundleIdKey == Pointer.NULL) {
+                return null;
+            }
+            try {
+                // Get the value from the icon dictionary
+                Pointer bundleIdValue = cf.CFDictionaryGetValue(iconDict, bundleIdKey);
+                if (bundleIdValue == null || bundleIdValue == Pointer.NULL) {
+                    return null;
+                }
+                // Check if it's a CFString
+                long typeID = cf.CFGetTypeID(bundleIdValue);
+                if (typeID != cf.CFStringGetTypeID()) {
+                    return null;
+                }
+                return convertToString(bundleIdValue);
+            } finally {
+                cf.CFRelease(bundleIdKey);
+            }
+        });
+    }
+
+    /**
      * Converts a CFString pointer to a Java String.
      * Performs type checking to ensure the pointer is actually a CFString.
      */
