@@ -5,6 +5,61 @@ import com.selesse.jdiskarbitration.DiskEventManager;
 import com.selesse.jdiskarbitration.DiskInfo;
 
 public class App {
+    private static void printDiskInfo(DiskInfo disk) {
+        System.out.println("\n┌─ VolumeInfo ─────────────────────────────────────");
+        printField("path", disk.volumeInfo().path());
+        printField("name", disk.volumeInfo().name());
+        printField("kind", disk.volumeInfo().kind());
+        printField("uuid", disk.volumeInfo().uuid());
+        printField("mountable", disk.volumeInfo().mountable());
+        printField("network", disk.volumeInfo().network());
+        printField("type", disk.volumeInfo().type());
+
+        System.out.println("\n├─ DeviceInfo ─────────────────────────────────────");
+        printField("protocol", disk.deviceInfo().protocol());
+        printField("model", disk.deviceInfo().model());
+        printField("vendor", disk.deviceInfo().vendor());
+        printField("revision", disk.deviceInfo().revision());
+        printField("unit", disk.deviceInfo().unit());
+        printField("isInternal", disk.deviceInfo().isInternal());
+        printField("guid", disk.deviceInfo().guid());
+        printField("path", disk.deviceInfo().path());
+        printField("tdmLocked", disk.deviceInfo().tdmLocked());
+
+        System.out.println("\n├─ MediaInfo ──────────────────────────────────────");
+        printField("isRemovable", disk.mediaInfo().isRemovable());
+        printField("mediaSize", disk.mediaInfo().mediaSize() != null ? disk.getFormattedSize() : null);
+        printField("mediaBlockSize", disk.mediaInfo().mediaBlockSize());
+        printField("isWritable", disk.mediaInfo().isWritable());
+        printField("isWholeDisk", disk.mediaInfo().isWholeDisk());
+        printField("isEjectable", disk.mediaInfo().isEjectable());
+        printField("isLeaf", disk.mediaInfo().isLeaf());
+        printField("mediaType", disk.mediaInfo().mediaType());
+        printField("mediaContent", disk.mediaInfo().mediaContent());
+        printField("mediaUUID", disk.mediaInfo().mediaUUID());
+        printField("bsdMajor", disk.mediaInfo().bsdMajor());
+        printField("bsdMinor", disk.mediaInfo().bsdMinor());
+        printField("bsdName", disk.mediaInfo().bsdName());
+        printField("bsdUnit", disk.mediaInfo().bsdUnit());
+        printField("icon", disk.mediaInfo().icon());
+        printField("kind", disk.mediaInfo().kind());
+        printField("name", disk.mediaInfo().name());
+        printField("path", disk.mediaInfo().path());
+        printField("encrypted", disk.mediaInfo().encrypted());
+        printField("encryptionDetail", disk.mediaInfo().encryptionDetail());
+
+        System.out.println("\n└─ BusInfo ────────────────────────────────────────");
+        printField("name", disk.busInfo().name());
+        printField("path", disk.busInfo().path());
+        System.out.println();
+    }
+
+    private static void printField(String name, Object value) {
+        if (value != null) {
+            System.out.printf("  %-20s: %s%n", name, value);
+        }
+    }
+
     public static void main(String[] args) {
         System.out.println("=== Example: USB External Disks Only ===\n");
 
@@ -14,59 +69,28 @@ public class App {
                 .listener(new DiskEventAdapter() {
             @Override
             public void onDiskAppeared(DiskInfo diskInfo) {
-                System.out.println("═══════════════════════════════════════════════════");
-                System.out.println("USB disk appeared: " + diskInfo.bsdName());
-                if (diskInfo.deviceInfo().vendor() != null || diskInfo.deviceInfo().model() != null) {
-                    System.out.println("  Device: " +
-                        (diskInfo.deviceInfo().vendor() != null ? diskInfo.deviceInfo().vendor() + " " : "") +
-                        (diskInfo.deviceInfo().model() != null ? diskInfo.deviceInfo().model() : ""));
-                }
-                if (diskInfo.mediaInfo().mediaSize() != null) {
-                    System.out.println("  Size: " + diskInfo.getFormattedSize());
-                }
-                System.out.println("  Properties: " +
-                    "Removable=" + diskInfo.mediaInfo().isRemovable() +
-                    ", Ejectable=" + diskInfo.mediaInfo().isEjectable() +
-                    ", Writable=" + diskInfo.mediaInfo().isWritable() +
-                    ", WholeDisk=" + diskInfo.mediaInfo().isWholeDisk());
+                System.out.println("\n╔═══════════════════════════════════════════════════╗");
+                System.out.println("║ DISK APPEARED: " + diskInfo.bsdName());
+                System.out.println("╚═══════════════════════════════════════════════════╝");
+                printDiskInfo(diskInfo);
             }
 
             @Override
             public void onDiskDisappeared(DiskInfo diskInfo) {
-                System.out.println("USB disk disappeared: " + diskInfo.bsdName());
-            }
-
-            @Override
-            public void onDiskDescriptionChanged(DiskInfo diskInfo) {
-                System.out.println("USB disk description changed: " + diskInfo.bsdName());
+                System.out.println("\n[DISAPPEARED] " + diskInfo.bsdName());
             }
 
             @Override
             public void onDiskMounted(DiskInfo diskInfo) {
-                System.out.println("───────────────────────────────────────────────────");
-                System.out.println("USB disk MOUNTED: " + diskInfo.bsdName());
-                if (diskInfo.volumeInfo().name() != null) {
-                    System.out.println("  Volume: " + diskInfo.volumeInfo().name());
-                }
-                System.out.println("  Path: " + diskInfo.volumeInfo().path());
-                if (diskInfo.volumeInfo().kind() != null) {
-                    System.out.println("  Filesystem: " + diskInfo.volumeInfo().kind());
-                }
-                if (diskInfo.mediaInfo().mediaSize() != null) {
-                    System.out.println("  Size: " + diskInfo.getFormattedSize());
-                }
-                if (diskInfo.mediaInfo().mediaUUID() != null) {
-                    System.out.println("  Media UUID: " + diskInfo.mediaInfo().mediaUUID());
-                }
-                if (diskInfo.volumeInfo().uuid() != null) {
-                    System.out.println("  Volume UUID: " + diskInfo.volumeInfo().uuid());
-                }
-                System.out.println("═══════════════════════════════════════════════════");
+                System.out.println("\n╔═══════════════════════════════════════════════════╗");
+                System.out.println("║ DISK MOUNTED: " + diskInfo.bsdName());
+                System.out.println("╚═══════════════════════════════════════════════════╝");
+                printDiskInfo(diskInfo);
             }
 
             @Override
             public void onDiskUnmounted(DiskInfo diskInfo) {
-                System.out.println("USB disk unmounted: " + diskInfo.bsdName());
+                System.out.println("\n[UNMOUNTED] " + diskInfo.bsdName());
             }
         })
                 .build();
